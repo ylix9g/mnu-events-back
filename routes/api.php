@@ -7,10 +7,6 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/events/{event}', function (Event $event) {
-    return response()->json($event);
-});
-
 Route::get('/events/grouped_by_category', [EventsController::class, 'groupedByCategory']);
 
 Route::get('/bookings/book_for_event', [BookingsController::class, 'bookForEvent']);
@@ -27,4 +23,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/events/by_date', [EventsController::class, 'byDate']);
 
+});
+
+Route::get('/events/{event}', function (Event $event) {
+    return response()->json($event);
 });
