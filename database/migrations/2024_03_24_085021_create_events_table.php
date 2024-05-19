@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('category_id');
             $table->boolean('main')->default(false);
+            $table->boolean('with_sectors')->default(false);
+            $table->string('image');
             $table->string('name')->unique();
             $table->text('description');
             $table->string('location');

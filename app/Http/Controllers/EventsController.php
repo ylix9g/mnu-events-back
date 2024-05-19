@@ -15,22 +15,46 @@ class EventsController extends Controller
         $validated = $request->validate([
             'main' => ['required', 'bool'],
             'category_id' => ['required', 'int'],
+            'image' => ['required', 'string'],
             'name' => ['required', 'string'],
             'description' => ['required', 'string'],
             'location' => ['required', 'string'],
             'limit' => ['required', 'int'],
             'start' => ['required', 'date'],
+            'with_sectors' => ['required', 'bool'],
+            'sectors.*.name' => ['required', 'string'],
+            'sectors.*.limit' => ['required', 'int'],
         ]);
         $category = Category::findOrFail($validated['category_id']);
-        $category->events()->create([
+        $event = $category->events()->create([
             'main' => $validated['main'],
+            'with_sectors' => $validated['with_sectors'],
+            'image' => $validated['image'],
             'name' => $validated['name'],
             'description' => $validated['description'],
             'location' => $validated['location'],
             'limit' => $validated['limit'],
             'start' => $validated['start'],
         ]);
-        return response()->json([]);
+        if ($validated['with_sectors']) {
+            foreach ($validated['sectors'] as $sector) {
+                $event->sectors()->create([
+                    'name' => $sector['name'],
+                    'limit' => $sector['limit'],
+                ]);
+            }
+        }
+        return response()->json();
+    }
+
+    public function closestMain(): JsonResponse
+    {
+        $closestMainEvent = Event::with('sectors')
+            ->where('main', true)
+            ->where('start', '>=', now())
+            ->orderBy('start')
+            ->first();
+        return response()->json($closestMainEvent);
     }
 
     public function groupedByCategory(): JsonResponse

@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bookings', function (Blueprint $table) {
+        Schema::create('sectors', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('event_id');
-            $table->boolean('confirmed')->default(false);
-            $table->string('email');
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->string('name');
+            $table->unsignedSmallInteger('limit');
             $table->timestamps();
 
+            $table->unique(['event_id', 'name']);
             $table->foreign('event_id')->references('id')->on('events');
         });
     }
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bookings');
+        Schema::dropIfExists('sectors');
     }
 };

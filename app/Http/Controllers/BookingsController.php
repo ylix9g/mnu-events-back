@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\BookingConfirmation;
 use App\Models\Booking;
 use App\Models\Event;
+use App\Models\Sector;
 use App\Rules\EndsWithRule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,16 +18,28 @@ class BookingsController extends Controller
     {
         $validated = $request->validate([
             'event_id' => ['required', 'exists:events,id'],
+            'sector_id' => ['exists:sectors,id'],
             'email' => ['required', 'email', new EndsWithRule(Booking::EMAIL_ENDING)],
             'first_name' => ['required', 'string'],
             'last_name' => ['required', 'string'],
         ]);
         $event = Event::findOrFail($validated['event_id']);
-        $booking = $event->bookings()->create([
-            'email' => $validated['email'],
-            'first_name' => $validated['first_name'],
-            'last_name' => $validated['last_name'],
-        ]);
+        $sector = null;
+        if ($validated['sector_id']) {
+            $sector = Sector::findOrFail($validated['sector_id']);
+            if ($sector->event->id !== $event->id) {
+                abort(404);
+            }
+        }
+        $booking = new Booking();
+        $booking->event()->associate($event);
+        if ($sector) {
+            $booking->sector()->associate($sector);
+        }
+        $booking->email = $validated['email'];
+        $booking->first_name = $validated['first_name'];
+        $booking->last_name = $validated['last_name'];
+        $booking->save();
         $confirmationExpiration = $booking->created_at->addMinutes(Booking::MINUTES_FOR_CONFIRMATION);
         $confirmationUrl = URL::temporarySignedRoute('bookings.confirmation', $confirmationExpiration, [
             'booking_id' => $booking->id,

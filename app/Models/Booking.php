@@ -26,6 +26,11 @@ class Booking extends Model
         return $this->belongsTo(Event::class);
     }
 
+    public function sector(): BelongsTo
+    {
+        return $this->belongsTo(Sector::class);
+    }
+
     protected function casts()
     {
         return [

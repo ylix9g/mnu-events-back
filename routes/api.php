@@ -3,6 +3,7 @@
 use App\Http\Controllers\BookingsController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\EventsController;
+use App\Http\Controllers\FilesController;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,8 @@ Route::get('/events/grouped_by_category', [EventsController::class, 'groupedByCa
 Route::get('/bookings/book_for_event', [BookingsController::class, 'bookForEvent']);
 
 Route::middleware('auth:api')->group(function () {
+
+    Route::post('/files/upload', [FilesController::class, 'upload']);
 
     Route::get('/user', function (Request $request) {
         return $request->user();
