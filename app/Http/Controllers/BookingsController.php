@@ -25,7 +25,7 @@ class BookingsController extends Controller
         ]);
         $event = Event::findOrFail($validated['event_id']);
         $sector = null;
-        if ($validated['sector_id']) {
+        if (array_key_exists('sector_id', $validated)) {
             $sector = Sector::findOrFail($validated['sector_id']);
             if ($sector->event->id !== $event->id) {
                 abort(404);
