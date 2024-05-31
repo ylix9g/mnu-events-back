@@ -28,6 +28,4 @@ Route::middleware('auth:api')->group(function () {
 
 });
 
-Route::get('/events/{event}', function (Event $event) {
-    return response()->json($event);
-});
+Route::get('/events/{eventId}', [EventsController::class, 'event']);

@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Date;
 
 class EventsController extends Controller
 {
+    public function event($eventId): JsonResponse
+    {
+        $event = Event::with('sectors')->findOrFail($eventId);
+        return response()->json($event);
+    }
+
     public function createEvent(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -50,6 +56,7 @@ class EventsController extends Controller
     public function closestMain(): JsonResponse
     {
         $closestMainEvent = Event::with('sectors')
+            ->with('sectors')
             ->where('main', true)
             ->where('start', '>=', now())
             ->orderBy('start')
@@ -60,7 +67,7 @@ class EventsController extends Controller
     public function groupedByCategory(): JsonResponse
     {
         $currentDay = now()->startOfDay();
-        $events = Event::where('start', '>=', $currentDay)->orderBy('start')->get();
+        $events = Event::with('sectors')->where('start', '>=', $currentDay)->orderBy('start')->get();
         $grouped = $events->groupBy('category.name');
         return response()->json($grouped);
     }
@@ -72,7 +79,8 @@ class EventsController extends Controller
             'month' => ['required', 'int'],
             'withEvent' => ['required', 'bool'],
         ]);
-        $events = Event::whereYear('start', $validated['year'])
+        $events = Event::with('sectors')
+            ->whereYear('start', $validated['year'])
             ->whereMonth('start', $validated['month'])
             ->get();
         $daysInMonth = Date::create($validated['year'], $validated['month'])->daysInMonth;

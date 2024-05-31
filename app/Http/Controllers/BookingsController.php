@@ -8,6 +8,9 @@ use App\Models\Event;
 use App\Models\Sector;
 use App\Rules\AlreadyBeenBookedRule;
 use App\Rules\EndsWithRule;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -50,7 +53,7 @@ class BookingsController extends Controller
         return response()->json();
     }
 
-    public function confirmation(Request $request): JsonResponse
+    public function confirmation(Request $request): View
     {
         $validated = $request->validate([
             'booking_id' => ['required', 'exists:bookings,id'],
@@ -58,6 +61,6 @@ class BookingsController extends Controller
         $booking = Booking::findOrFail($validated['booking_id']);
         $booking->confirmed = true;
         $booking->save();
-        return response()->json('success');
+        return view('bookings.success_page');
     }
 }
